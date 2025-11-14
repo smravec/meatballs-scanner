@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building2, TrendingDown } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface Store {
   name: string;
@@ -11,32 +12,120 @@ interface Store {
   color: string;
 }
 
-const stores: Store[] = [
+interface StoreConfig {
+  name: string;
+  endpoint: string;
+  weight: string;
+  color: string;
+}
+
+const storeConfigs: StoreConfig[] = [
   {
     name: "Lidl",
-    price: 3.99,
+    endpoint: "http://127.0.0.1:8000/lidl",
     weight: "500g",
-    pricePerKg: 7.98,
-    savings: 2.51,
     color: "hsl(210 85% 48%)",
   },
   {
     name: "K-Market",
-    price: 4.99,
+    endpoint: "http://127.0.0.1:8000/kmarket",
     weight: "500g",
-    pricePerKg: 9.98,
     color: "hsl(150 60% 45%)",
   },
   {
     name: "Prisma",
-    price: 5.49,
+    endpoint: "http://127.0.0.1:8000/prisma",
     weight: "500g",
-    pricePerKg: 10.98,
     color: "hsl(25 95% 55%)",
   },
 ];
 
 export const PriceResults = () => {
+  const [stores, setStores] = useState<Store[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        setLoading(true);
+        const responses = await Promise.all(
+          storeConfigs.map(async (config) => {
+            const response = await fetch(config.endpoint);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch ${config.name} price`);
+            }
+            const data = await response.json();
+            return { config, price: data["meatball-price"] };
+          })
+        );
+
+        const storesData: Store[] = responses.map(({ config, price }) => {
+          const weightInKg = parseFloat(config.weight) / 1000;
+          const pricePerKg = price / weightInKg;
+          return {
+            name: config.name,
+            price: price,
+            weight: config.weight,
+            pricePerKg: pricePerKg,
+            color: config.color,
+          };
+        });
+
+        // Sort by price (ascending)
+        storesData.sort((a, b) => a.price - b.price);
+
+        // Calculate savings compared to the highest price
+        const maxPrice = Math.max(...storesData.map((s) => s.price));
+        storesData.forEach((store) => {
+          const savings = maxPrice - store.price;
+          if (savings > 0) {
+            store.savings = savings;
+          }
+        });
+
+        setStores(storesData);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch prices");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPrices();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading prices...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="text-center py-12">
+          <p className="text-destructive">Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (stores.length === 0) {
+    return (
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No prices available</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="mb-6">
@@ -73,7 +162,10 @@ export const PriceResults = () => {
                       {store.name}
                     </h3>
                     {index === 0 && (
-                      <Badge variant="default" className="bg-secondary text-secondary-foreground">
+                      <Badge
+                        variant="default"
+                        className="bg-secondary text-secondary-foreground"
+                      >
                         Best Price
                       </Badge>
                     )}
