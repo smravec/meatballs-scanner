@@ -26,7 +26,7 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <div className="text-3xl">🥩</div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold">MeatballScanner</h1>
+              <h1 className="text-2xl md:text-3xl font-bold">MeatBALLS Scanner</h1>
               <p className="text-sm text-primary-foreground/80">
                 Compare meatball prices across stores
               </p>
@@ -73,7 +73,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-card border-t border-border mt-16">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          <p>MeatballScanner • Helping you save on meatballs since 2025</p>
+          <p>MeatBALLS Scanner • Helping you save on meatballs since 2025</p>
         </div>
       </footer>
     </div>
