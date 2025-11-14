@@ -22,19 +22,19 @@ interface StoreConfig {
 const storeConfigs: StoreConfig[] = [
   {
     name: "Lidl",
-    endpoint: "http://127.0.0.1:8000/lidl",
+    endpoint: "http://team09.hackplay.eu:8000/lidl",
     weight: "500g",
     color: "hsl(210 85% 48%)",
   },
   {
     name: "K-Market",
-    endpoint: "http://127.0.0.1:8000/kmarket",
+    endpoint: "http://team09.hackplay.eu:8000/kmarket",
     weight: "500g",
     color: "hsl(150 60% 45%)",
   },
   {
     name: "Prisma",
-    endpoint: "http://127.0.0.1:8000/prisma",
+    endpoint: "http://team09.hackplay.eu:8000/prisma",
     weight: "500g",
     color: "hsl(25 95% 55%)",
   },
